@@ -1,0 +1,7 @@
+title: "When the Lights Stay Off"
+description: "Severe weather and the duration of major U.S. power outages — Emily Liu"
+url: "https://yifanliu0108.github.io"
+baseurl: "/when-the-lights-stay-off"
+markdown: kramdown
+exclude:
+  - DEPLOY.txt

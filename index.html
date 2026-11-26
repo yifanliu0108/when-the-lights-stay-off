@@ -1,0 +1,202 @@
+---
+layout: default
+---
+<section class="hero" aria-labelledby="project-title">
+  <p class="eyebrow">Major U.S. power outages · January 2000–July 2016</p>
+  <h1 id="project-title">When the Lights<br>Stay Off</h1>
+  <p class="deck">Exploring how reported cause relates to outage duration, and how much we can predict when an outage first begins.</p>
+  <p class="byline">Emily Liu <span>DSC 80 · UC San Diego</span></p>
+  <p class="progress">Checkpoint 2 report — hypothesis test and baseline model</p>
+  <a class="read-link" href="#introduction">Read the analysis</a>
+</section>
+
+<nav class="contents" aria-label="Report sections">
+  <a href="#introduction">Introduction</a>
+  <a href="#exploration">Exploration</a>
+  <a href="#hypothesis">Hypothesis test</a>
+  <a href="#baseline">Baseline model</a>
+</nav>
+
+<section id="introduction">
+  <p class="section-kicker">The question</p>
+  <h2>Introduction</h2>
+  <p class="lead">Do severe-weather outages tend to last longer than equipment-failure outages?</p>
+  <p>A brief interruption and a multi-day outage require very different preparation. This report examines 1,534 recorded major outage events from the continental United States in the Purdue LASCI dataset. Each row describes a recorded event affecting a state. These records do not represent every household interruption.</p>
+  <p>The main columns are <code>CAUSE.CATEGORY</code> (reported cause) and <code>OUTAGE.DURATION</code> (minutes). The start and restoration date/time fields describe event timing. State and starting month provide the baseline model's predictors.</p>
+</section>
+
+<section id="exploration">
+  <p class="section-kicker">Understanding the records</p>
+  <h2>Data Cleaning and Exploratory Data Analysis</h2>
+  <p>The workbook's first five rows contain descriptive material, row six contains variable names, and row seven gives units. I loaded the observations starting in row eight and removed an empty formatting column. I combined the start date and time into one timestamp, and did the same for restoration. Missing clock times remain missing.</p>
+  <p>I retained reported zero durations and unusually long events. There are 58 missing durations and 443 missing affected-customer counts. The supplied duration differs from the timestamp interval by more than one minute in 31 records, so I kept the reported duration as the outcome and documented the discrepancy rather than overwriting it.</p>
+  <div class="table-scroll" role="region" aria-label="First five outage records" tabindex="0"><table class="dataframe data-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Event ID</th>
+      <th>State</th>
+      <th>Reported cause</th>
+      <th>Duration (minutes)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>Minnesota</td>
+      <td>severe weather</td>
+      <td>3,060</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>Minnesota</td>
+      <td>intentional attack</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>Minnesota</td>
+      <td>severe weather</td>
+      <td>3,000</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>Minnesota</td>
+      <td>severe weather</td>
+      <td>2,550</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>Minnesota</td>
+      <td>severe weather</td>
+      <td>1,740</td>
+    </tr>
+  </tbody>
+</table></div>
+  <figure>
+    <iframe src="assets/duration_distribution.html" title="Distribution of reported outage durations" loading="lazy"></iframe>
+    <figcaption>The median reported duration is about 11.7 hours, while the mean is about 43.8 hours. The logarithmic transformation compresses the long right tail and preserves zero-minute events.</figcaption>
+  </figure>
+  <figure>
+    <iframe src="assets/duration_comparison.html" title="Duration by severe weather or equipment failure" loading="lazy"></iframe>
+    <figcaption>Among records with observed duration, severe weather has a median of 41.0 hours and equipment failure about 3.7 hours. The boxes' middle 50% ranges do not overlap, but the full observed ranges do. The comparison retains 744 weather records and 55 equipment-failure records; missing durations are excluded.</figcaption>
+  </figure>
+  <div class="table-scroll" role="region" aria-label="Duration summaries by reported cause" tabindex="0"><table class="dataframe data-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Events</th>
+      <th>Observed durations</th>
+      <th>Median hours</th>
+    </tr>
+    <tr>
+      <th>Reported cause</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>fuel supply emergency</th>
+      <td>51</td>
+      <td>38</td>
+      <td>66.00</td>
+    </tr>
+    <tr>
+      <th>severe weather</th>
+      <td>763</td>
+      <td>744</td>
+      <td>41.00</td>
+    </tr>
+    <tr>
+      <th>public appeal</th>
+      <td>69</td>
+      <td>69</td>
+      <td>7.58</td>
+    </tr>
+    <tr>
+      <th>equipment failure</th>
+      <td>60</td>
+      <td>55</td>
+      <td>3.68</td>
+    </tr>
+    <tr>
+      <th>system operability disruption</th>
+      <td>127</td>
+      <td>123</td>
+      <td>3.58</td>
+    </tr>
+    <tr>
+      <th>islanding</th>
+      <td>46</td>
+      <td>44</td>
+      <td>1.29</td>
+    </tr>
+    <tr>
+      <th>intentional attack</th>
+      <td>418</td>
+      <td>403</td>
+      <td>0.93</td>
+    </tr>
+  </tbody>
+</table></div>
+  <p>Fuel-supply emergencies have the longest median reported duration at 66 hours, followed by severe weather at 41 hours. Group sizes and duration reporting differ, so the medians describe the available records rather than a controlled comparison.</p>
+</section>
+
+<section id="missingness" class="pending">
+  <h2>Assessment of Missingness</h2>
+  <p>Missingness dependency tests and NMAR reasoning are pending for the final report. The counts above describe missing data; they do not identify its mechanism.</p>
+</section>
+
+<section id="hypothesis">
+  <p class="section-kicker">Testing the planned comparison</p>
+  <h2>Hypothesis Testing</h2>
+  <p><strong>Null:</strong> The reported-duration distributions are identical for severe-weather and equipment-failure events. Cause labels are exchangeable under this null, with an expected difference of zero in mean log(1 + duration in minutes).</p>
+  <p><strong>Alternative:</strong> Severe-weather outages have a larger mean log(1 + duration in minutes).</p>
+  <p>The statistic is the weather-group mean of log(1 + minutes) minus the equipment-failure-group mean. This reduces the influence of the longest events while retaining zeros. It is a comparison of transformed means, not arithmetic mean minutes or medians.</p>
+  <div class="finding">
+    <p class="finding-label">One-sided permutation test · α = 0.05</p>
+    <p class="finding-number">2.0826<span>observed difference</span></p>
+    <p>None of 10,000 cause-label permutations produced a statistic this large. With the +1 Monte Carlo correction, <strong>p = 1/10001 ≈ 0.000100</strong>.</p>
+  </div>
+  <figure>
+    <iframe src="assets/hypothesis_permutation.html" title="Permutation null distribution and observed statistic" loading="lazy"></iframe>
+    <figcaption>The permutation distribution is generated with seed 80 while preserving group sizes. The observed difference lies beyond every simulated null statistic.</figcaption>
+  </figure>
+  <p>At α = 0.05, I reject the null under the permutation assumptions. The records provide evidence of a larger mean log-transformed duration for severe-weather events. This does not establish causation: state and year can confound the association, shared storms can create dependence, and duration reporting may be selective.</p>
+</section>
+
+<section id="prediction">
+  <h2>Framing a Prediction Problem</h2>
+  <p>I predict <code>OUTAGE.DURATION</code> in minutes at the first outage report. This is regression. State and starting-calendar information are available then; restoration timestamps, duration-derived features, confirmed cause, and final customer or demand-loss totals are excluded.</p>
+  <p>MAE is the primary metric because it expresses absolute prediction error in minutes and is less dominated by extreme outages than RMSE. RMSE is a secondary measure of the effect of large errors. Missing targets are excluded, and valid zeros remain.</p>
+</section>
+
+<section id="baseline">
+  <p class="section-kicker">A first predictive model</p>
+  <h2>Baseline Model</h2>
+  <p>The baseline is a shallow decision-tree regressor using two original inputs: <code>U.S._STATE</code> and <code>MONTH</code>. Both are treated as nominal categories, with no quantitative or ordinal inputs. One sklearn pipeline applies training-mode imputation, one-hot encoding with unknown categories ignored, and an absolute-error tree with maximum depth 3 and minimum leaf size 20.</p>
+  <p>I trained on 1,219 events beginning before January 1, 2014, and evaluated on 257 events beginning in 2014–July 2016. All preprocessing is fitted on training records only. A median-only reference always predicts the training median of 900 minutes.</p>
+  <div class="table-scroll" role="region" aria-label="Chronological holdout model performance" tabindex="0">
+    <table class="data-table"><thead><tr><th>Model</th><th>MAE (minutes)</th><th>RMSE (minutes)</th></tr></thead><tbody>
+      <tr><td>Two-feature baseline tree</td><td>2,162.50</td><td>8,726.81</td></tr>
+      <tr><td>Training-median reference</td><td>2,171.65</td><td>8,767.68</td></tr>
+    </tbody></table>
+  </div>
+  <p>The baseline improves MAE by only 0.42% over the reference. An average absolute error of about 36.0 hours is a weak starting point, and the much larger RMSE shows that some long outages remain difficult to predict. The current model is not ready for operational use.</p>
+</section>
+
+<section id="final-model" class="pending">
+  <h2>Final Model</h2>
+  <p>The next experiment will add onset hour and weekday and use cyclic encodings for seasonal timing. I plan to try a random-forest regressor and tune depth, minimum leaf size, and number of trees using chronological cross-validation on training records only. The final comparison will use the same holdout. No final-model improvement has been established yet.</p>
+</section>
+
+<section id="fairness" class="pending">
+  <h2>Fairness Analysis</h2>
+  <p>Pending until the final model is trained. The planned analysis will compare held-out error across onset-defined event groups using a permutation test, without refitting the model during shuffling.</p>
+</section>
+
+<section class="sources" id="sources">
+  <h2>Sources</h2>
+  <p><a href="https://engineering.purdue.edu/LASCI/research-data/outages/outagerisks">Purdue LASCI outage dataset</a> · <a href="https://dsc80.com/proj04/power-outages">Course dataset description</a> · <a href="https://dsc80.com/proj04/">Project requirements</a></p>
+</section>
