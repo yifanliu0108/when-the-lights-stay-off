@@ -2,16 +2,16 @@
 layout: default
 ---
 <h1>When the Lights Stay Off</h1>
-<p>Emily Liu<br>DSC 80 - Project 4, Checkpoint 2</p>
+<p>Emily Liu and Alva Huang<br>DSC 80 - Project 4, Checkpoint 2</p>
 
 <h2>Introduction</h2>
-<p>My question is: do severe-weather outages tend to last longer than equipment-failure outages?</p>
-<p>I am using the Purdue power-outages dataset. It has 1,534 major U.S. outage records from January 2000 to July 2016. Long outages can affect people's daily lives, so I wanted to look at how duration differs by cause.</p>
-<p>The main columns are <code>CAUSE.CATEGORY</code> (reported cause) and <code>OUTAGE.DURATION</code> (duration in minutes). I also use <code>U.S._STATE</code> and <code>MONTH</code> to predict duration.</p>
+<p>Our question is: do severe-weather outages tend to last longer than equipment-failure outages?</p>
+<p>We are using the Purdue power-outages dataset. It has 1,534 major U.S. outage records from January 2000 to July 2016. Long outages can affect people's daily lives, so we wanted to look at how duration differs by cause.</p>
+<p>The main columns are <code>CAUSE.CATEGORY</code> (reported cause) and <code>OUTAGE.DURATION</code> (duration in minutes). We also use <code>U.S._STATE</code> and <code>MONTH</code> to predict duration.</p>
 
 <h2>Data Cleaning and Exploratory Data Analysis</h2>
-<p>I skipped the description and units rows in the Excel file and removed an empty column. I combined the date and time columns into start and restoration timestamps. I kept zero durations and left missing values as missing.</p>
-<p>There are 58 missing durations. I exclude these records when duration is needed. In 31 records, the reported duration differs from the timestamp interval by more than one minute. I kept the reported duration instead of replacing it.</p>
+<p>We skipped the description and units rows in the Excel file and removed an empty column. We combined the date and time columns into start and restoration timestamps. We kept zero durations and left missing values as missing.</p>
+<p>There are 58 missing durations. We exclude these records when duration is needed. In 31 records, the reported duration differs from the timestamp interval by more than one minute. We kept the reported duration instead of replacing it.</p>
 <p>Here are the first five cleaned records:</p>
 <div class="table-container">
   <table>
@@ -24,7 +24,7 @@ layout: default
   </table>
 </div>
 
-<p>The median duration is about 11.7 hours, while the mean is about 43.8 hours. Some outages last much longer than most others. I used log(1 + duration) to show this range while keeping zeros.</p>
+<p>The median duration is about 11.7 hours, while the mean is about 43.8 hours. Some outages last much longer than most others. We used log(1 + duration) to show this range while keeping zeros.</p>
 <iframe src="assets/duration_distribution.html" title="Distribution of outage durations" loading="lazy"></iframe>
 
 <p>The median is 41.0 hours for severe weather and about 3.7 hours for equipment failure. There are 744 weather records and 55 equipment-failure records with observed durations.</p>
@@ -45,22 +45,22 @@ layout: default
 </div>
 
 <h2>Assessment of Missingness</h2>
-<p>I have not completed the missingness tests yet. These will be part of the final project.</p>
+<p>We have not completed the missingness tests yet. These will be part of the final project.</p>
 
 <h2>Hypothesis Testing</h2>
 <p><strong>Null hypothesis:</strong> Duration has the same distribution for severe-weather and equipment-failure outages.</p>
 <p><strong>Alternative hypothesis:</strong> Severe-weather outages have a larger mean log(1 + duration in minutes).</p>
-<p>My statistic is the weather-group mean log(1 + duration) minus the equipment-failure-group mean. I used a one-sided permutation test with 10,000 shuffles and a significance level of 0.05. Missing durations were excluded, and zeros were kept.</p>
-<p>The observed statistic was 2.082619. None of the shuffled statistics was as large, giving a corrected p-value of 1/10001, or about 0.000100. I reject the null under the test's assumptions. This supports an association with higher mean log-transformed duration for weather outages, but it does not show causation. Differences in location, year, or reporting could also matter.</p>
+<p>Our statistic is the weather-group mean log(1 + duration) minus the equipment-failure-group mean. We used a one-sided permutation test with 10,000 shuffles and a significance level of 0.05. Missing durations were excluded, and zeros were kept.</p>
+<p>The observed statistic was 2.082619. None of the shuffled statistics was as large, giving a corrected p-value of 1/10001, or about 0.000100. We reject the null under the test's assumptions. This supports an association with higher mean log-transformed duration for weather outages, but it does not show causation. Differences in location, year, or reporting could also matter.</p>
 <iframe src="assets/hypothesis_permutation.html" title="Permutation test results" loading="lazy"></iframe>
 
 <h2>Framing a Prediction Problem</h2>
-<p>I want to predict <code>OUTAGE.DURATION</code> in minutes when an outage is first reported. This is a regression problem. I use information known at the start, such as state and month. I leave out restoration information, confirmed cause, and final impact totals.</p>
-<p>I use MAE because it measures absolute prediction error in minutes. I also report RMSE to show the effect of large errors.</p>
+<p>We want to predict <code>OUTAGE.DURATION</code> in minutes when an outage is first reported. This is a regression problem. We use information known at the start, such as state and month. We leave out restoration information, confirmed cause, and final impact totals.</p>
+<p>We use MAE because it measures absolute prediction error in minutes. We also report RMSE to show the effect of large errors.</p>
 
 <h2>Baseline Model</h2>
-<p>My baseline is a decision-tree regressor using state and starting month. Both inputs are treated as nominal categories. One sklearn Pipeline fills missing inputs with the training mode, applies one-hot encoding, and fits the tree. The tree uses absolute-error splits, a maximum depth of 3, and at least 20 training records per leaf.</p>
-<p>I trained on 1,219 records from 2000-2013 and tested on 257 records from 2014-July 2016. All preprocessing was fitted on the training data only. I also compared the tree with a model that always predicts the training median of 900 minutes.</p>
+<p>Our baseline is a decision-tree regressor using state and starting month. Both inputs are treated as nominal categories. One sklearn Pipeline fills missing inputs with the training mode, applies one-hot encoding, and fits the tree. The tree uses absolute-error splits, a maximum depth of 3, and at least 20 training records per leaf.</p>
+<p>We trained on 1,219 records from 2000-2013 and tested on 257 records from 2014-July 2016. All preprocessing was fitted on the training data only. We also compared the tree with a model that always predicts the training median of 900 minutes.</p>
 <div class="table-container">
   <table>
     <tr><th>Model</th><th>MAE (minutes)</th><th>RMSE (minutes)</th></tr>
@@ -71,10 +71,10 @@ layout: default
 <p>The tree's MAE is only 0.42% lower than the median model's. This is a weak baseline, so there is room to improve.</p>
 
 <h2>Final Model</h2>
-<p>I plan to add start hour and weekday and try a random forest. I will tune tree depth, minimum leaf size, and number of trees using time-based cross-validation on the training data. I will use the same test set for the final comparison. I have not trained this model yet.</p>
+<p>We plan to add start hour and weekday and try a random forest. We will tune tree depth, minimum leaf size, and number of trees using time-based cross-validation on the training data. We will use the same test set for the final comparison. We have not trained this model yet.</p>
 
 <h2>Fairness Analysis</h2>
-<p>I will complete this after training the final model.</p>
+<p>We will complete this after training the final model.</p>
 
 <h2>Sources</h2>
 <ul>
